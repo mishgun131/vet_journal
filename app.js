@@ -6,8 +6,16 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
-
+const pg = require('pg');
 const conf = new require('./settings')();
+
+const pool = new pg.Pool({
+    user: conf.postgres.user,
+    host: conf.postgres.host,
+    database: conf.postgres.database,
+    password: conf.postgres.password,
+    port: conf.postgres.port
+});
 
 const routes = require('./routes/index');
 const users = require('./routes/users');
@@ -19,7 +27,7 @@ const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 app.use(favicon(path.join(__dirname, 'public/images', 'favicon.ico')));
 app.use(bodyParser.json());
@@ -27,7 +35,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(session({
     store: new pgSession({
-        conString: conf.connectString
+        pool : pool
     }),
     secret: conf.cookieSecret,
     resave: false,
@@ -92,7 +100,7 @@ app.use(function (req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    app.use(function (err, req, res, next) {
+    app.use(function (err, req, res) {
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
@@ -103,7 +111,7 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
     res.status(err.status || 500);
     res.render('error', {
         message: err.message,

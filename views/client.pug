@@ -1,3 +1,5 @@
+extends layout
+
 mixin buttons-block(cl)
     div(class = cl)
         button(class = 'btn btn-outline-secondary cl-edit-accept-changes', type = 'button', ng-click = 'saveClientValue($event)')
@@ -5,7 +7,6 @@ mixin buttons-block(cl)
         button(class = 'btn btn-outline-secondary cl-edit-decline-changes', type = 'button', ng-click = 'abortSaveClientValue($event)')
             i(class = 'fas fa-times')
 
-extends layout
 block content
     - var clients_in = JSON.stringify(client_info)
     - var pets_in = JSON.stringify(pets)

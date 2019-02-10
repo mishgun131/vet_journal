@@ -3,7 +3,13 @@ module.exports = function() {
         case 'production':
             return {
                 port: 80,
-                connectString: "postgres://login:password@host:port/vet",
+                postgres: {
+                    user: 'login',
+                    host: 'host',
+                    database: 'vet',
+                    password: 'password',
+                    port: 5432
+                },
                 debug: false,
                 cookieSecret: 'SomeSecret'
             };
@@ -11,7 +17,13 @@ module.exports = function() {
         default:
             return {
                 port: 3000,
-                connectString: "postgres://login:password@host:port/vet",
+                postgres: {
+                    user: 'login',
+                    host: 'host',
+                    database: 'vet',
+                    password: 'password',
+                    port: 5432
+                },
                 debug: true,
                 cookieSecret: 'SomeSecret'
             };

@@ -1,4 +1,4 @@
-var express = require('express'),
+const express = require('express'),
     router = express.Router(),
     db = require('../db/db'),
     _ = require('../libs/_utils');
@@ -7,7 +7,7 @@ var express = require('express'),
 /*      GET методы      */
 /*----------------------*/
 router.get('/search', db.checkUser, function(req, res) {
-    var _module = 'api.search';
+    let _module = 'api.search';
 
     if (req.query && req.query.q != null) {
         db.liveSearchClient(req.query.q, function (err, result) {
@@ -25,7 +25,7 @@ router.get('/search', db.checkUser, function(req, res) {
 });
 
 router.get('/get_pet_types', db.checkUser, function(req, res) {
-    var _module = 'api.get_pet_types';
+    let _module = 'api.get_pet_types';
 
     db.getPetTypes(function(err, pet_types) {
         if (err) {
@@ -38,7 +38,7 @@ router.get('/get_pet_types', db.checkUser, function(req, res) {
 });
 
 router.get('/get_pet_breeds_by_type_id', db.checkUser, function(req, res) {
-    var _module = 'api.get_pet_breeds_by_type_id';
+    let _module = 'api.get_pet_breeds_by_type_id';
 
     if (req.query && req.query.id != null) {
         db.getPetBreedsByTypeId(req.query.id, function(err, pet_breeds) {
@@ -88,12 +88,12 @@ router.get('/get_grugs_list', db.checkUser, function(req, res) {
 /*----------------------*/
 
 router.post('/addClient/', db.checkUser, function(req, res) {
-    var _module = 'api.addClient';
+    let _module = 'api.addClient';
 
     if (req && req.body) {
         _.log('debug', _module, 'Входные параметры', {body: req.body, pets: req.body.pets});
 
-        var client = req.body;
+        let client = req.body;
 
         db.addClient(client, function (err, id) {
             if (err) {
@@ -111,10 +111,10 @@ router.post('/addClient/', db.checkUser, function(req, res) {
 
 //Редактирование поля клиента по имени поля и по идентификатору клиента
 router.post('/editClient/', db.checkUser, function(req, res, next) {
-    var _module = 'api.editClient';
+    let _module = 'api.editClient';
 
     if (req && req.body) {
-        var client_id = req.body.id,
+        let client_id = req.body.id,
             field = req.body.field,
             value = req.body.value;
 

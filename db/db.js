@@ -1,8 +1,18 @@
 'use strict';
 
-const query = require('pg-query'),
+const { Client } = require('pg'),
     conf = new require('../settings')(),
     _ = require('../libs/_utils');
+
+const client = new Client({
+    user: conf.postgres.user,
+    host: conf.postgres.host,
+    database: conf.postgres.database,
+    password: conf.postgres.password,
+    port: conf.postgres.port
+});
+
+client.connect();
 
 const db = function (connectParams) {
     let _connectParams;
@@ -10,12 +20,10 @@ const db = function (connectParams) {
     if (connectParams) {
         _connectParams = connectParams;
     } else {
-        _connectParams = conf.connectString;
+        _connectParams = conf.postgres;
     }
 
     _.log('debug', 'db.init', 'Параметры подключения', {_connectParams: _connectParams});
-
-    query.connectionParameters = _connectParams;
 };
 
 db.prototype.login = function (login, password, cb) {
@@ -30,20 +38,20 @@ db.prototype.login = function (login, password, cb) {
 
         params = [login, password];
 
-        query(sql, params, function(err, rows) {
+        client.query(sql, params, function(err, result) {
             if (err) {
                 _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
                 cb(_.stdFrontErrMessage, false);
             } else {
-                if (rows && rows.length) {
-                    if (rows[0].result_id > 0) { //Код больше нуля, значит ошибка входа 1 - пользователь не найден, 2 - пароль не верный
-                        _.log('debug', _module, 'Неудачная попытка авторизации', {login: login, password: password, rows: rows});
+                if (result.rows && result.rows.length) {
+                    if (result.rows[0].result_id > 0) { //Код больше нуля, значит ошибка входа 1 - пользователь не найден, 2 - пароль не верный
+                        _.log('debug', _module, 'Неудачная попытка авторизации', {login: login, password: password, rows: result.rows});
                         cb('Логин или пароль не верные', false);
                     } else {
                         cb(null, true);
                     }
                 } else {
-                    _.log('error', _module, 'Пустой ответ сервера', {rows: rows});
+                    _.log('error', _module, 'Пустой ответ сервера', {rows: result.rows});
                     cb(_.stdFrontErrMessage, false);
                 }
             }
@@ -66,17 +74,16 @@ db.prototype.checkUser = function(req, res, next) {
 
         params = [req.session.user];
 
-        query(sql, params, function(err, rows) {
+        client.query(sql, params, function(err, result) {
             if (err) {
                 _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
                 res.redirect('/auth');
             } else {
-                if (rows && rows.length) {
-                    var cnt = rows[0]['cnt'];
-                    if (rows[0].check === 0) { //Успешно
+                if (result.rows && result.rows.length) {
+                    if (result.rows[0].check === 0) { //Успешно
                         next();
                     } else { //Не успешно
-                        _.log('debug', _module, 'Неудачная проверка сессии', {login: req.session.user, rows: rows});
+                        _.log('debug', _module, 'Неудачная проверка сессии', {login: req.session.user, rows: result.rows});
                         if (originalUrl) {
                             res.redirect('/auth?originalUrl=' + originalUrl);
                         } else {
@@ -84,7 +91,7 @@ db.prototype.checkUser = function(req, res, next) {
                         }
                     }
                 } else {
-                    _.log('error', _module, 'Пустой ответ сервера', {rows: rows});
+                    _.log('error', _module, 'Пустой ответ сервера', {rows: result.rows});
                     if (originalUrl) {
                         res.redirect('/auth?originalUrl=' + originalUrl);
                     } else {
@@ -131,12 +138,12 @@ db.prototype.addClient = function(client, cb) {
     params.push((client.cl_comment && client.cl_comment.length)? client.cl_comment : null); //$6
     params.push(client.pets); //$7
 
-    query(sql, params, function(err, rows) {
+    client.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
         } else {
-            var id = rows[0].cl_id;
+            let id = result.rows[0].cl_id;
             cb(null, id);
         }
     });
@@ -152,7 +159,7 @@ db.prototype.editClient = function(client_id, field, value, cb) {
 
     params = [client_id, field, value];
 
-    query(sql, params, function(err) {
+    client.query(sql, params, function(err) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
@@ -168,12 +175,12 @@ db.prototype.getClientList = function(cb) {
 
     sql = 'select * from control.cl_get_clients_list();';
 
-    query(sql, function(err, rows) {
+    client.query(sql, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: sql});
             cb(_.stdFrontErrMessage);
         } else {
-            cb(null, rows);
+            cb(null, result.rows);
         }
     });
 };
@@ -186,12 +193,12 @@ db.prototype.getClient = function(id, cb) {
 
     params = [id];
 
-    query(sql, params, function(err, rows) {
+    client.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
         } else {
-            cb(null, rows[0]);
+            cb(null, result.rows[0]);
         }
     });
 };
@@ -226,21 +233,21 @@ db.prototype.addPet = function(pet, cb) {
     params.push(pet.birthday); //$7
     params.push(pet.birthday_is_exact); //$8
 
-    query(sql, params, function(err, rows) {
+    client.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', err, _.getSql(sql, params));
             cb(_.stdFrontErrMessage);
         } else {
             sql = 'select * from control.pt_get_pet_list($1,$2);'; //client_id integer not null or pet_id not null
 
-            params = [null, rows[0].pt_id];
+            params = [null, result.rows[0].pt_id];
 
-            query(sql, params, function(err, rows) {
+            client.query(sql, params, function(err, result) {
                 if (err) {
                     _.log('error', _module, 'Ошибка запроса', err, _.getSql(sql, params));
                     cb(_.stdFrontErrMessage);
                 } else {
-                    cb(null, rows[0]);
+                    cb(null, result.rows[0]);
                 }
             });
         }
@@ -261,12 +268,12 @@ db.prototype.getPetsList = function(client_id, pet_id, cb) {
 
     params = [client_id, pet_id];
 
-    query(sql, params, function(err, rows) {
+    client.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
         } else {
-            cb(null, rows);
+            cb(null, result.rows);
         }
     });
 };
@@ -281,15 +288,15 @@ db.prototype.editPet = function(pet_id, field, value, cb) {
 
     params = [pet_id, field, value];
 
-    query(sql, params, function(err, rows) {
+    client.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
         } else {
             let data = null;
 
-            if (rows && rows[0]) {
-                data = rows[0]['pt_edit_field_value'];
+            if (result.rows && result.rows[0]) {
+                data = result.rows[0]['pt_edit_field_value'];
             }
 
             cb(null, data);
@@ -305,12 +312,12 @@ db.prototype.getPetWeightHistory = function(pet_id, cb) {
 
     params = [pet_id];
 
-    query(sql, params, function(err, rows) {
+    client.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
         } else {
-            cb(null, rows);
+            cb(null, result.rows);
         }
     });
 };
@@ -330,12 +337,12 @@ db.prototype.liveSearchClient = function(query_string, cb) {
         }
     }
 
-    query(sql, params, function(err, rows) {
+    client.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
         } else {
-            cb(null, rows);
+            cb(null, result.rows);
         }
     });
 };
@@ -345,12 +352,12 @@ db.prototype.getPetTypes = function(cb) {
 
     let sql = 'select * from control.pt_get_pet_types();'; //query$t text not null
 
-    query(sql, function(err, rows) {
+    client.query(sql, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: sql});
             cb(_.stdFrontErrMessage);
         } else {
-            cb(null, rows);
+            cb(null, result.rows);
         }
     });
 };
@@ -361,12 +368,12 @@ db.prototype.getPetBreedsByTypeId = function(type_id, cb) {
     let params = [type_id]
         ,sql = 'select * from control.pt_get_pet_breeds_by_type_id($1);';
 
-    query(sql, params, function(err, rows) {
+    client.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
         } else {
-            cb(null, rows);
+            cb(null, result.rows);
         }
     });
 };
@@ -377,12 +384,12 @@ db.prototype.getEventTypes = function(cb) {
 
     let sql = 'select * from control.ev_get_types();';
 
-    query(sql, function(err, rows) {
+    client.query(sql, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', err, sql);
             cb(_.stdFrontErrMessage);
         } else {
-            cb(null, rows);
+            cb(null, result.rows);
         }
     });
 };
@@ -408,7 +415,7 @@ db.prototype.addDrug = function(drug, cb) {
     params.push(drug.release_form? drug.release_form : null); //$2
     params.push(drug.price? drug.price : null); //$3
 
-    query(sql, params, function(err) {
+    client.query(sql, params, function(err) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', err, _.getSql(sql, params));
             cb(_.stdFrontErrMessage);
@@ -425,12 +432,12 @@ db.prototype.getDrugList = function(cb) {
 
     sql = 'select * from control.dict_get_drugs_list();'; //price$n numeric null
 
-    query(sql, function(err, rows) {
+    client.query(sql, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', err, sql);
             cb(_.stdFrontErrMessage);
         } else {
-            cb(null, rows);
+            cb(null, result.rows);
         }
     });
 };
@@ -439,12 +446,12 @@ db.prototype.getDrugList = function(cb) {
 db.prototype.execQuery = function(sql, params, cb) {
     let _module = 'db.execQuery';
 
-    query(sql, params, function(err, rows) {
+    client.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
         } else {
-            cb(null, rows);
+            cb(null, result.rows);
         }
     });
 };
