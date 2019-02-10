@@ -1,0 +1,190 @@
+doctype html
+html(ng-app = 'vet_clinic_app')
+    head
+        meta(charset = 'utf-8')
+        meta(http-equiv = 'X-UA-Compatible', content = 'IE=edge')
+        meta(name = 'viewport', content = 'width=device-width, initial-scale=1')
+        link(rel = 'icon', href = '/images/favicon.ico')
+        //-jquery libs
+        script(src = '/jquery/js/jquery.min.js')
+        //-angular libs
+        script(src = '/angular/js/angular.min.js')
+        script(src = '/popper/js/popper.min.js')
+        //-bootstrap lib
+        link(href = '/bootstrap/css/bootstrap.min.css', rel = 'stylesheet')
+        script(src = '/bootstrap/js/bootstrap.min.js')
+        //-moment.js
+        script(src = '/moment/js/moment-with-locales.min.js')
+        //-live search lib
+        script(src = '/javascripts/libs/jquery.typeahead.js')
+        //-datepicker lib
+        link(href = '/datetimepicker/css/bootstrap-datetimepicker.css', rel = 'stylesheet')
+        script(src = '/datetimepicker/js/bootstrap-datetimepicker.min.js')
+        //-chart.js
+        script(src = '/chart/js/chart.min.js')
+        //-other libs
+        link(href = '/fontawesome/css/all.min.css', rel = 'stylesheet')
+        link(href = '/stylesheets/jquery.typeahead.css', rel = 'stylesheet')
+        link(href = '/stylesheets/animate.css', rel = 'stylesheet')
+        script(src = '/javascripts/libs/jquery.noty-2.3.7.min.js')
+        script(src = '/javascripts/libs/jquery-mask-plugin.min.js')
+        //-my libs
+        script(src = '/javascripts/layout.js')
+        link(href = '/stylesheets/style.css', rel = 'stylesheet')
+        if client_info
+            title
+                | #{client_info.fio} | Ветеринарный журнал
+        else
+            title
+                | Ветеринарный журнал
+    body
+        nav(class = 'navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0')
+            a(class = 'navbar-brand col-sm-3 col-md-2 mr-0', href = '/')
+                | Владимирский
+            div(class = 'typeahead__container w-100')
+                input(class = 'live-search form-control form-control-dark w-100', type = 'search', placeholder = 'Поиск по клиентам', aria-label = 'Search')
+            ul(class = 'navbar-nav px-3')
+                li(class = 'nav-item text-nowrap')
+                    a(id = 'session-destroy', class = 'nav-link', href = '#')
+                        | Выход
+        div(class = 'container-fluid')
+            div(class = 'row')
+                nav(class = 'col-md-2 d-none d-md-block bg-light sidebar')
+                    div(class = 'sidebar-sticky')
+                        ul(class = 'nav flex-column')
+                            li(class = 'nav-item')
+                                h6(class = 'd-flex justify-content-between align-items-center px-3 mt-1 mb-1')
+                                    a(id = 'clients', href = '/clients')
+                                        i(class = 'fas fa-users')
+                                        | Клиенты
+                                    a(class = 'd-flex align-items-center text-muted', href = '#', data-toggle = 'modal', data-target = '#add-client-modal')
+                                        i(class = 'fas fa-user-plus', data-toggle = 'tooltip', title = 'Добавить клиента')
+                            if client_info
+                                li(class = 'nav-item')
+                                    h6(class = 'd-flex justify-content-between align-items-center px-3 mt-1 mb-1')
+                                        a(id = 'client', href = '/clients/client_#{client_info.id}')
+                                            i(class = 'fas fa-user')
+                                            | #{client_info.fio}
+                        h6(class = 'sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted')
+                            span
+                                | Словари
+                        ul(class = 'nav flex-column')
+                            li(class = 'nav-item')
+                                h6(class = 'd-flex justify-content-between align-items-center px-3 mt-1 mb-1')
+                                    a(id = 'dict-drugs', href = '/dicts/drugs')
+                                        i(class = 'fas fa-book-open')
+                                        | Препараты
+                        h6(class = 'sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted')
+                            span
+                                | Администрирование
+
+                main(role = 'main', class = 'col-md-9 ml-sm-auto col-lg-10 pt-3 px-4')
+                    block content
+
+        //-Окно добавления нового клиента
+        //-Если что-то связанное с питомцами менять, надо не забыть про модальное окно добавления питомца в client.jade
+        div(class = 'modal fade', id = 'add-client-modal', tabindex = '-1', role = 'dialog', aria-labelledby = 'add-client-modal', aria-hidden = 'true')
+            div(class = 'modal-dialog modal-lg', ng-controller='add-new-cl-controller', role = 'document')
+                div(class = 'modal-content')
+                    div(class = 'modal-header')
+                        h5(class = 'modal-title')
+                            | Добавление нового клиента
+                        button(type = 'button', class = 'close', data-dismiss = 'modal', aria-label = 'Close')
+                            span(aria-hidden = 'true')
+                                | &times;
+                    form(class = 'form-horizontal', name = 'addClient', ng-submit = 'addClientSubmit()')
+                        div(class = 'modal-body add-client-modal')
+                            div(class = 'container-fluid')
+                                legend(style = 'text-align:center')
+                                    | Данные клиента
+                                div(class = 'row')
+                                    label(for = 'new-cl-input-lastname', class = 'col-md-2')
+                                        | Фамилия*
+                                    input(type = 'text', class = 'col-md-5 form-control form-control-sm', id = 'new-cl-input-lastname', ng-model = 'addClientData.lastname', placeholder = 'фамилия', required)
+                                    label(for = 'new-cl-input-phonenumber', class = 'col-md-2', style = 'text-align:right')
+                                        | Телефон*
+                                    div(class = 'input-group input-group-sm col-md-3')
+                                        div(class = 'input-group-prepend')
+                                            span(class = 'input-group-text', id = 'new-cl-phonenumber-addon')
+                                                | 8
+                                        input(type = 'text', class = 'form-control form-control-sm', id = 'new-cl-input-phonenumber', ng-model = 'addClientData.phone', aria-describedby = 'new-cl-phonenumber-addon', required)
+                                div(class = 'row')
+                                    label(for = 'new-cl-input-firstname' class = 'col-md-2')
+                                        | Имя*
+                                    input(type = 'text', class = 'col-md-5 form-control form-control-sm', id = 'new-cl-input-firstname', ng-model = 'addClientData.firstname', placeholder = 'имя', required)
+                                div(class = 'row')
+                                    label(for = 'new-cl-input-middlename' class = 'col-md-2')
+                                        | Отчество
+                                    input(type = 'text', class = 'col-md-5 form-control form-control-sm', id = 'new-cl-input-middlename', ng-model = 'addClientData.middlename', placeholder = 'отчество')
+                                div(class = 'row')
+                                    label(for = 'new-cl-input-address', class = 'col-md-2')
+                                        | Адрес
+                                    div(class = 'col-md-10', style = 'padding-left:0')
+                                        input(type = 'text', class = 'form-control form-control-sm', id = 'new-cl-input-address', ng-model = 'addClientData.address', placeholder = 'адрес')
+                                label(for = 'new-cl-textarea-comment', class = 'col-md-2', style = 'padding-left:0')
+                                    | Комментарий
+                                textarea(id = 'new-cl-textarea-comment', class = 'col-md-12 form-control form-control-sm', ng-model = 'addClientData.cl_comment', rows = '3')
+
+                                legend(style='text-align:center; padding-top: 15px')
+                                    | Данные питомцев
+                                div(class='row new-cl-pet-block', data-ng-repeat='pet in pets', pets-repeat-directive)
+                                    div(class='col-md-2', style='text-align: right; border-right: 1px solid #e5e5e5')
+                                        div(id='name-id-{{$index}}')
+                                            | {{addClientData.pet[$index].nickname.substr(0, 10) || "Питомец"}}
+                                    div(class='col-md-10')
+                                        div(class='row')
+                                            label(for='new-cl-pet-name-{{$index}}', class='col-md-2')
+                                                | Кличка*
+                                            input(type='text', class='col-md-3 form-control form-control-sm', id='new-cl-pet-name-{{$index}}', ng-model='addClientData.pet[$index].nickname', placeholder='кличка', required)
+                                            label(class='col-md-2', style = 'text-align: right')
+                                                | Пол*
+                                            div(class='col-md-2 radio', style = 'padding: 0')
+                                                label
+                                                    input(type = 'radio', name = 'sex-radio-{{$index}}', value = 1, checked = '', ng-model = 'addClientData.pet[$index].sex_id', required)
+                                                    | Мужской
+                                            div(class='col-md-2 radio', style = 'padding: 0')
+                                                label
+                                                    input(type = 'radio', name = 'sex-radio-{{$index}}', value = 0, checked = '', ng-model = 'addClientData.pet[$index].sex_id', required)
+                                                    | Женский
+                                        div(class='row')
+                                            label(for = 'new-cl-pet-type-{{$index}}', class = 'col-md-2')
+                                                | Тип*
+                                            div(class = 'typeahead__container col-md-3', style = 'padding: 0')
+                                                input(type='text', class='form-control form-control-sm pet-type-live-search', id='new-cl-pet-type-{{$index}}', ng-model='addClientData.pet[$index].type', placeholder='тип', autocomplete = 'off', required)
+                                            label(for = 'new-cl-pet-breed-{{$index}}', class = 'col-md-2', style = 'text-align: right')
+                                                | Порода
+                                            div(class = 'typeahead__container col-md-4', style = 'padding: 0')
+                                                input(type = 'text', class = 'form-control form-control-sm pet-breed-live-search', id = 'new-cl-pet-breed-{{$index}}', ng-model = 'addClientData.pet[$index].breed', placeholder = 'порода', ng-disabled = '!addClientData.pet[$index].type', autocomplete = 'off')
+                                        div(class = 'row')
+                                            label(for='new-cl-pet-age-year-{{$index}}', class='col-md-2')
+                                                | Возраст*
+                                            div(class = 'col-md-3')
+                                                div(class = 'row')
+                                                    input(type='number', class='form-control form-control-sm w-50', id='new-cl-pet-age-year-{{$index}}', ng-model='addClientData.pet[$index].years', ng-blur='setAgeMonth($event)', data-index='{{$index}}', placeholder='лет', required)
+                                                    input(type='number', class='form-control form-control-sm w-50', id='new-cl-pet-age-month-{{$index}}', ng-model='addClientData.pet[$index].months', ng-blur='setAgeYear($event)', data-index='{{$index}}', placeholder='мес', required)
+                                            label(class='col-md-3')
+                                                | или дата рождения
+                                            div(class = 'input-group input-group-sm col-md-3', style = 'padding: 0')
+                                                input(type = 'text', class = 'form-control form-control-sm', id = 'pet-birthday-{{$index}}', ng-model = 'addClientData.pet[$index].birthday', ng-blur = 'setAge($event)', data-index = '{{$index}}', datepicker, autocomplete = 'off', placeholder = 'дд.мм.гггг')
+                                                div(class = 'input-group-append')
+                                                    span(class = 'input-group-text', id = 'new-cl-pet-birthday-{{$index}}-addon')
+                                                        span(data-feather = 'calendar')
+                                        div(class='row')
+                                            label(for='new-cl-pet-weight-{{$index}}', class='col-md-2')
+                                                | Вес*
+                                            input(type='number', step='0.001', class='col-md-3 form-control form-control-sm', id='new-cl-pet-weight-{{$index}}', ng-model='addClientData.pet[$index].weight', placeholder='кг', required)
+
+                                div(class='form-group', style='margin:0px; text-align:left')
+                                    button(type='button', class='btn btn-default', ng-click='addPet()')
+                                        | Добавить питомца
+                                    button(type='button', class='btn btn-default', ng-click='delPet()', ng-show='pets.length > 1', style='margin-left: 20px')
+                                        | Удалить питомца
+                        div(class = 'modal-footer')
+                            button(type = 'button', class = 'btn btn-secondary', data-dismiss = 'modal')
+                                | Закрыть
+                            button(type='submit', class = 'btn btn-primary')
+                                | Сохранить
+
+        block modals
+
+        block end-scripts

@@ -1,0 +1,5 @@
+/node_modules
+/public/javascripts/libs
+/.idea
+settings.js
+package-lock.json

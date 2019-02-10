@@ -1,0 +1,35 @@
+doctype html
+html(ng-app = 'vet_clinic_app')
+    head
+        meta(charset = 'utf-8')
+        meta(http-equiv = 'X-UA-Compatible', content = 'IE=edge')
+        meta(name = 'viewport', content = 'width=device-width, initial-scale=1')
+        link(rel = 'icon', href = '/images/favicon.ico')
+        link(href = '/bootstrap/css/bootstrap.min.css', rel = 'stylesheet')
+        link(href = '/stylesheets/style.css', rel = 'stylesheet')
+        link(href = '/stylesheets/animate.css', rel = 'stylesheet')
+        script(src = '/jquery/js/jquery.min.js')
+        script(src = '/angular/js/angular.min.js')
+        script(src = '/bootstrap/js/bootstrap.min.js')
+        script(src = '/javascripts/libs/jquery.noty-2.3.7.min.js')
+        title
+            | Ветеринарный журнал
+    body
+        div(class = 'container')
+            div(class = 'well auth-form')
+                form(class = 'form-horizontal', name = 'authForm', ng-controller = 'authController', ng-submit = 'submit()')
+                    fieldset
+                        legend
+                            | Авторизация
+                        div(class = 'form-group')
+                            label(for = 'inputEmail', class = 'control-label')
+                                | Логин
+                            input(type = 'text', class = 'form-control', id = 'inputEmail', ng-model = 'authForm.login', placeholder = 'Логин', required)
+                        div(class = 'form-group')
+                            label(for = 'inputPassword' class = 'control-label')
+                                | Пароль
+                            input(type = 'password', class = 'form-control', id = 'inputPassword', ng-model = 'authForm.password', placeholder = 'Пароль', required)
+                        div(class = 'form-group')
+                            button(type = 'submit', class = 'btn btn-primary')
+                                | Войти
+        script(src = '/javascripts/auth.js')

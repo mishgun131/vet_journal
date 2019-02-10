@@ -1,0 +1,292 @@
+mixin buttons-block(cl)
+    div(class = cl)
+        button(class = 'btn btn-outline-secondary cl-edit-accept-changes', type = 'button', ng-click = 'saveClientValue($event)')
+            i(class = 'fas fa-check')
+        button(class = 'btn btn-outline-secondary cl-edit-decline-changes', type = 'button', ng-click = 'abortSaveClientValue($event)')
+            i(class = 'fas fa-times')
+
+extends layout
+block content
+    - var clients_in = JSON.stringify(client_info)
+    - var pets_in = JSON.stringify(pets)
+    div(ng-controller = 'cl-controller', ng-init = 'init(#{clients_in}, #{pets_in})')
+        if client_info
+            div(class = 'well')
+                div(class = 'row', style = 'margin-left: 0')
+                    h1(title = '{{client.lastname}} {{client.firstname}} {{client.middlename}}')
+                        span(class = 'text-muted', style = 'margin-right: 15px')
+                            | Клиент:
+                        span(ng-bind = 'client.lastname')
+                        | &nbsp;
+                        span(ng-bind = 'client.firstname | limitTo: 1')
+                        span(ng-bind = "client.firstname? '. ' : ''")
+                        span(ng-bind = 'client.middlename | limitTo: 1')
+                        span(ng-bind = "client.middlename? '.' : ''")
+                    div(style = 'margin-left: 25px; margin-top: 4px')
+                        button(id = 'collapse-button', type = 'button', class = 'btn btn-outline-primary', data-toggle = 'collapse', data-target = '#client-info')
+                            | Редактировать карточку
+                div(id = 'client-info', class = 'collapse')
+                    div(class = 'row')
+                        div(class = 'col-md-8')
+                            p(class = 'text-muted')
+                                | ФИО
+                            div(class = 'row', style = 'margin-left: 0')
+                                //-lastname
+                                div(class = 'editable cl-edit-value', data-source = 'lastname')
+                                    h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                        | {{client.lastname}}
+                                div(class = 'input-group input-group-sm cl-edit-value-ok', data-target = 'lastname')
+                                    input(type = 'text', class = 'form-control form-control-sm')
+                                    +buttons-block('input-group-append')
+                                //-firstname
+                                div(class = 'editable cl-edit-value', data-source = 'firstname')
+                                    h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                        | {{client.firstname}}
+                                div(class = 'input-group input-group-sm cl-edit-value-ok', data-target = 'firstname')
+                                    input(type = 'text', class = 'form-control form-control-sm')
+                                    +buttons-block('input-group-append')
+                                //-middlename
+                                div(class = 'editable cl-edit-value', data-source = 'middlename')
+                                    h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                        | {{client.middlename || '\u00A0\u00A0\u00A0-\u00A0\u00A0\u00A0'}}
+                                div(class = 'input-group input-group-sm cl-edit-value-ok', data-target = 'middlename')
+                                    input(type = 'text', class = 'form-control form-control-sm')
+                                    +buttons-block('input-group-append')
+                            p(class = 'text-muted')= 'Адрес'
+                            //-address
+                            div(class = 'editable cl-edit-value', data-source = 'address')
+                                h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                    | {{client.address}}
+                            div(class = 'input-group input-group-sm cl-edit-value-ok', data-target = 'address')
+                                input(type = 'text', class = 'form-control form-control-sm')
+                                +buttons-block('input-group-append')
+                        div(class = 'col-md-4', style = 'text-align:right')
+                            p(class = 'text-muted')
+                                | Телефон
+                            //-phone
+                            div(class = 'editable cl-edit-value', data-source = 'phone')
+                                h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                    | 8 {{client.phone}}
+                            div(class = 'input-group input-group-sm', data-target = 'phone', data-display = 'null', style = 'display: none; float: right')
+                                div(class = 'input-group-prepend')
+                                    span(class = 'input-group-text')
+                                        | 8
+                                input(type = 'text', id = 'inputPhone', class = 'form-control form-control-sm')
+                                +buttons-block('input-group-append')
+                    p(class = 'text-muted')
+                        | Комментарий
+                    div(data-target = 'cl_comment')
+                        textarea(id = 'cl_comment', ng-blur = 'saveClientValue($event)', class = 'form-control', rows = '3')= '{{client.cl_comment}}'
+            div(class = 'row', style = 'margin-left: 0; margin-top: 20px')
+                h2
+                    | Питомцы
+                div(style = 'margin-left: 25px; margin-top: 4px')
+                    button(type = 'button', class = 'btn btn-outline-primary', data-toggle = 'modal', data-target = '#add-pet-modal')
+                        | Добавить питомца
+            div(id = 'content', style = 'margin-left: 0; margin-top: 20px')
+                ul(id = 'tabs', class = 'nav nav-pills', role = 'tablist')
+                    li(data-ng-repeat = 'pet in pets', class = 'nav-item pets-tabs')
+                        a(class = 'nav-link', id = 'pet-{{pet.id}}-tab', href = '#pet-{{pet.id}}', data-toggle = 'tab', role = 'tab', aria-controls = 'pet-{{pet.id}}', aria-selected = 'false', ng-bind = 'pet.nickname')
+                div(class = 'tab-content')
+                    div(class = 'tab-pane fade pets-list-repeat', data-ng-repeat = 'pet in pets', id = 'pet-{{pet.id}}', role = 'tabpanel', aria-labelledby = 'home-tab', pets-list-repeat-directive)
+                        div(class = 'row')
+                            //nickname
+                            div(class = 'col-md-1')
+                                p(class = 'text-muted')
+                                    | Кличка:
+                            div(class = 'col-md-3')
+                                div(class = 'editable cl-edit-value', data-source = 'pet-nickname-{{$index}}')
+                                    h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                        | {{pet.nickname}}
+                                div(class = 'input-group input-group-sm cl-edit-value-ok', data-target = 'pet-nickname-{{$index}}')
+                                    input(type = 'text', class = 'form-control form-control-sm')
+                                    +buttons-block('input-group-append')
+                            //-sex_id
+                            div(class = 'col-md-1')
+                                p(class = 'text-muted')
+                                    | Пол:
+                            div(class = 'col-md-4')
+                                div(class = 'editable cl-edit-value', data-source = 'pet-sex_id-{{$index}}')
+                                    h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                        | {{pet.sex_id == 0? 'Женский' : 'Мужской'}}
+                                div(class = 'row')
+                                    div(class = 'input-group input-group-sm cl-edit-value-ok', data-target = 'pet-sex_id-{{$index}}')
+                                        div(class='col-md-5 radio', style = 'padding: 0')
+                                            label
+                                                input(type = 'radio', name = 'pet-sex-radio-{{$index}}', value = 0, ng-checked = '{{pet.sex_id == 0? "true" : ""}}')
+                                                | Женский
+                                        div(class='col-md-5 radio', style = 'padding: 0')
+                                            label
+                                                input(type = 'radio', name = 'pet-sex-radio-{{$index}}', value = 1, ng-checked = '{{pet.sex_id == 1? "true" : ""}}')
+                                                | Мужской
+                                        +buttons-block('col-md-2 input-group-append')
+                        div(class = 'row')
+                            //-type
+                            div(class = 'col-md-1')
+                                p(class = 'text-muted')
+                                    | Тип:
+                            div(class = 'col-md-3')
+                                div(class = 'editable cl-edit-value', data-source = 'pet-type-{{$index}}')
+                                    h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                        | {{pet.type}}
+                                div(class = 'typeahead__container input-group input-group-sm cl-edit-value-ok', data-target = 'pet-type-{{$index}}')
+                                    input(type = 'text', class = 'form-control form-control-sm pet-type-live-search')
+                                    +buttons-block('input-group-append')
+                            //-breed
+                            div(class = 'col-md-1')
+                                p(class = 'text-muted')
+                                    | Порода:
+                            div(class = 'col-md-2')
+                                div(class = 'editable cl-edit-value', data-source = 'pet-breed-{{$index}}')
+                                    h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                        | {{pet.breed || '\u00A0\u00A0\u00A0-\u00A0\u00A0\u00A0'}}
+                                div(class = 'typeahead__container input-group input-group-sm cl-edit-value-ok', data-target = 'pet-breed-{{$index}}')
+                                    input(type = 'text', class = 'form-control form-control-sm pet-breed-live-search')
+                                    +buttons-block('input-group-append')
+                        div(class = 'row pet-birthday')
+                            //-birthday
+                            div(class = 'col-md-1')
+                                p(class = 'text-muted')
+                                    | Дата рождения:
+                            div(class = 'col-md-3')
+                                div(class = 'editable cl-edit-value', data-source = 'pet-birthday-{{$index}}')
+                                    h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                        | {{pet.birthday}}
+                                    p(class = 'text-muted pet-birthday-text')
+                                div(class = 'input-group input-group-sm cl-edit-value-ok', data-target = 'pet-birthday-{{$index}}')
+                                    input(type = 'text', class = 'datepicker-input form-control form-control-sm', autocomplete = 'off', placeholder = 'дд.мм.гггг')
+                                    +buttons-block('input-group-append')
+                            //-weight
+                            div(class = 'col-md-1')
+                                p(class = 'text-muted')
+                                    | Вес (кг):
+                            div(class = 'col-md-3')
+                                div(class = 'editable cl-edit-value', data-source = 'pet-weight-{{$index}}')
+                                    h3(ng-dblclick = 'editClientValue($event)', data-toggle = 'tooltip', data-placement = 'top', title = 'Двойной клик для редактирования')
+                                        | {{pet.weight || '\u00A0\u00A0\u00A0-\u00A0\u00A0\u00A0'}}
+                                    button(class = 'btn btn-link btn-sm', ng-click = 'showPetWeightHistory($event, $index, pet.id)', type = 'button', style = 'padding: 0')
+                                        | История изменения веса
+                                div(class = 'input-group input-group-sm cl-edit-value-ok', data-target = 'pet-weight-{{$index}}')
+                                    input(type='number', step='0.001', class = 'form-control form-control-sm', autocomplete = 'off')
+                                    +buttons-block('input-group-append')
+                        div(id = 'pet-weight-history-{{$index}}', class = 'collapse')
+                            canvas(id = 'pet-weight-history-chart-{{pet.id}}', width = '100%')
+                        div(class = 'row', style = 'margin-left: 0; margin-top: 20px')
+                            h3
+                                | Записи питомца
+                            div(style = 'margin-left: 25px; margin-top: 4px')
+                                button(id = 'collapse-button', type = 'button', class = 'btn btn-outline-primary', data-toggle = 'modal', data-target = '#add-pet-event-modal')
+                                    | Добавить запись
+        else
+            h3
+                | Такого клиента не существует или он был удален
+
+block modals
+    //-Окно добавления нового питомца
+    div(class = 'modal fade', id = 'add-pet-modal', tabindex = '-2', role = 'dialog', aria-labelledby = 'add-pet-modal', aria-hidden = 'true')
+        div(class = 'modal-dialog modal-lg', ng-controller='modal-add-pet', role = 'document')
+            div(class = 'modal-content')
+                div(class = 'modal-header')
+                    h5(class = 'modal-title')
+                        | Добавление нового питомца
+                    button(type = 'button', class = 'close', data-dismiss = 'modal', aria-label = 'Close')
+                        span(aria-hidden = 'true')
+                            | &times;
+                form(class = 'form-horizontal', name = 'addPet', ng-submit = 'addPetSubmit()')
+                    div(class = 'modal-body add-client-modal')
+                        div(class = 'container-fluid')
+                            legend(style='text-align:center; padding-top: 15px')
+                                | Данные питомца
+                            div(class='row new-pet-block')
+                                div(class='col-md-2', style='text-align: right; border-right: 1px solid #e5e5e5')
+                                    div(id='name-id')
+                                        | {{addPetData.nickname.substr(0, 10) || "Питомец"}}
+                                div(class='col-md-10')
+                                    div(class='row')
+                                        label(for='new-cl-pet-name', class='col-md-2')
+                                            | Кличка*
+                                        input(type='text', class='col-md-3 form-control form-control-sm', id='new-cl-pet-name', ng-model='addPetData.nickname', placeholder='кличка', required)
+                                        label(class='col-md-2', style = 'text-align: right')
+                                            | Пол*
+                                        div(class='col-md-2 radio', style = 'padding: 0')
+                                            label
+                                                input(type = 'radio', name = 'sex-radio', value = 1, checked = '', ng-model = 'addPetData.sex_id', required)
+                                                | Мужской
+                                        div(class='col-md-2 radio', style = 'padding: 0')
+                                            label
+                                                input(type = 'radio', name = 'sex-radio', value = 0, checked = '', ng-model = 'addPetData.sex_id', required)
+                                                | Женский
+                                    div(class='row')
+                                        label(for = 'new-cl-pet-type', class = 'col-md-2')
+                                            | Тип*
+                                        div(class = 'typeahead__container col-md-3', style = 'padding: 0')
+                                            input(type='text', class='form-control form-control-sm pet-type-live-search', id='new-cl-pet-type', ng-model='addPetData.type', placeholder='тип', autocomplete = 'off', required)
+                                        label(for = 'new-cl-pet-breed', class = 'col-md-2', style = 'text-align: right')
+                                            | Порода
+                                        div(class = 'typeahead__container col-md-4', style = 'padding: 0')
+                                            input(type = 'text', class = 'form-control form-control-sm pet-breed-live-search', id = 'new-cl-pet-breed', ng-model = 'addPetData.breed', placeholder = 'порода', ng-disabled = '!addPetData.type', autocomplete = 'off')
+                                    div(class = 'row')
+                                        label(for='new-cl-pet-age-year', class='col-md-2')
+                                            | Возраст*
+                                        div(class = 'col-md-3')
+                                            div(class = 'row')
+                                                input(type='number', class='form-control form-control-sm w-50', id='new-cl-pet-age-year', ng-model='addPetData.years', ng-blur='setAgeMonth($event)', placeholder='лет', required)
+                                                input(type='number', class='form-control form-control-sm w-50', id='new-cl-pet-age-month', ng-model='addPetData.months', ng-blur='setAgeYear($event)', placeholder='мес', required)
+                                        label(class='col-md-3')
+                                            | или дата рождения
+                                        div(class = 'input-group input-group-sm col-md-3', style = 'padding: 0')
+                                            input(type = 'text', class = 'form-control form-control-sm', id = 'pet-birthday', datepicker, ng-model = 'addPetData.birthday', ng-blur = 'setAge($event)', autocomplete = 'off', placeholder = 'дд.мм.гггг')
+                                            div(class = 'input-group-append')
+                                                span(class = 'input-group-text', id = 'new-cl-pet-birthday-addon')
+                                                    i(class = 'far fa-calendar')
+                                    div(class='row')
+                                        label(for='new-cl-pet-weight', class='col-md-2')
+                                            | Вес*
+                                        input(type='number', step='0.001', class='col-md-3 form-control form-control-sm', id='new-cl-pet-weight', ng-model='addPetData.weight', placeholder='кг', required)
+                                    if client_info
+                                        input(type = 'text', id = 'client-id', class = 'hidden', value = '#{client_info.id}', required)
+                    div(class = 'modal-footer')
+                        button(type = 'button', class = 'btn btn-secondary', data-dismiss = 'modal')
+                            | Закрыть
+                        button(type = 'submit', class = 'btn btn-primary')
+                            | Сохранить
+
+    //-Модальное окно добавления записи питомцу
+    div(class = 'modal fade', id = 'add-pet-event-modal', tabindex = '-3', role = 'dialog', aria-labelledby = 'add-pet-event-modal', aria-hidden = 'true')
+        div(class = 'modal-dialog modal-lg', ng-controller='modal-add-pet-event', role = 'document')
+            div(class = 'modal-content')
+                div(class = 'modal-header')
+                    h5(class = 'modal-title')
+                        | Добавление записи
+                    button(type = 'button', class = 'close', data-dismiss = 'modal', aria-label = 'Close')
+                        span(aria-hidden = 'true')
+                            | &times;
+                form(class = 'form-horizontal', name = 'addPetEvent', ng-submit = 'addPetEventSubmit()')
+                    div(class = 'modal-body add-client-modal')
+                        div(class = 'container-fluid')
+                            div(class='row')
+                                label(for='new-cl-pet-name', class='col-md-2')
+                                    | Тип записи*
+                                select(class='col-md-4 form-control form-control-sm', id='new-pet-event-type', ng-model='addPetEventData.type_id')
+                                    each type in event_types
+                                        option(value = type.type_id)
+                                            | #{type.type_name}
+                                label(for = 'new-pet-event-time', class = 'col-md-2')
+                                    | Время записи*
+                                div(class = 'input-group input-group-sm date col-md-4')
+                                    input(type = 'text', class = 'form-control form-control-sm', datetimepicker, id = 'new-pet-event-time', ng-model = 'addPetEventData.time', autocomplete = 'off', placeholder = 'дд.мм.гггг 24ч:59м')
+                                    div(class = 'input-group-append')
+                                        span(class = 'input-group-text')
+                                            i(class = 'far fa-calendar')
+                            input(type = 'text', id = 'event-pet-id', class = 'hidden', ng-model = 'addPetEventData.pet_id', required)
+                            input(type = 'text', id = 'event-type-id', class = 'hidden', ng-model = 'addPetEventData.type_id')
+                    div(class = 'modal-footer')
+                        button(type = 'button', class = 'btn btn-secondary', data-dismiss = 'modal')
+                            | Закрыть
+                        button(type = 'submit', class = 'btn btn-primary')
+                            | Сохранить
+            
+            
+block end-scripts
+    //-data tables lib
+    script(src = '/javascripts/client.js')
