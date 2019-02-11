@@ -16,7 +16,8 @@ html(ng-app = 'vet_clinic_app')
         //-moment.js
         script(src = '/moment/js/moment-with-locales.min.js')
         //-live search lib
-        script(src = '/javascripts/libs/jquery.typeahead.js')
+        link(href = '/typeahead/css/jquery.typeahead.min.css', rel = 'stylesheet')
+        script(src = '/typeahead/js/jquery.typeahead.min.js')
         //-datepicker lib
         link(href = '/datetimepicker/css/bootstrap-datetimepicker.css', rel = 'stylesheet')
         script(src = '/datetimepicker/js/bootstrap-datetimepicker.min.js')
@@ -24,10 +25,10 @@ html(ng-app = 'vet_clinic_app')
         script(src = '/chart/js/chart.min.js')
         //-other libs
         link(href = '/fontawesome/css/all.min.css', rel = 'stylesheet')
-        link(href = '/stylesheets/jquery.typeahead.css', rel = 'stylesheet')
         link(href = '/stylesheets/animate.css', rel = 'stylesheet')
-        script(src = '/javascripts/libs/jquery.noty-2.3.7.min.js')
-        script(src = '/javascripts/libs/jquery-mask-plugin.min.js')
+        link(href = '/noty/css/noty.css', rel = 'stylesheet')
+        script(src = '/noty/js/noty.min.js')
+        script(src = '/jquery-mask-plugin/js/jquery.mask.min.js')
         //-my libs
         script(src = '/javascripts/layout.js')
         link(href = '/stylesheets/style.css', rel = 'stylesheet')

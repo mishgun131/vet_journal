@@ -84,18 +84,21 @@ vetApplication.controller('add-new-cl-controller', function($scope, $http, $loca
 
                     angular.element('#collapse-button').trigger('click');
 
-                    noty({
-                        type: 'success',
+                    new Noty({
                         text: 'Клиент добавлен. Сейчас будет переход на его страницу.',
+                        type: 'success',
                         timeout: 1000
-                    });
+                    }).show();
 
                     //Через секунду перейдем на страницу клиента
                     setTimeout(function() {
                         window.location = '/clients/client_' + data.id;
                     }, 1000);
                 } else {
-                    noty({text: 'Ошибка: ' + data.err});
+                    new Noty({
+                        text: data.err,
+                        type: 'error'
+                    }).show();
                 }
             });
     };
@@ -244,7 +247,7 @@ window.onload = function() {
     /* !'live' search */
 
     /*  noty init  */
-    $.noty.defaults = {
+    Noty.overrideDefaults({
         layout: 'bottomRight',
         theme: 'relax',
         type: 'error',
@@ -257,7 +260,7 @@ window.onload = function() {
             easing: 'swing',
             speed: 300
         },
-        timeout: 5000,
+        timeout: 4000,
         force: false,
         modal: false,
         maxVisible: 5,
@@ -271,7 +274,7 @@ window.onload = function() {
             onCloseClick: function() {}
         },
         buttons: false
-    };
+    });
     /*  !noty init  */
 
     /* bootstrap tooltips */

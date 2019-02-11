@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -43,32 +45,49 @@ app.use(session({
     cookie: { maxAge: 24 * 60 * 60 * 1000 } //1 день
 }));
 
+/* -- STATIC ROUTES TO MODULES -- */
 //angular route
-app.use('/angular/js', express.static(__dirname + '/node_modules/angular'));
+app.use('/angular/js', express.static(__dirname + '/node_modules/angular/'));
 
 //jquery route
-app.use('/jquery/js', express.static(__dirname + '/node_modules/jquery/dist'));
+app.use('/jquery/js', express.static(__dirname + '/node_modules/jquery/dist/'));
 
 //datetime picker route
-app.use('/datetimepicker/js', express.static(__dirname + '/node_modules/pc-bootstrap4-datetimepicker/build/js'));
-app.use('/datetimepicker/css', express.static(__dirname + '/node_modules/pc-bootstrap4-datetimepicker/build/css'));
+app.use('/datetimepicker/js', express.static(__dirname + '/node_modules/pc-bootstrap4-datetimepicker/build/js/'));
+app.use('/datetimepicker/css', express.static(__dirname + '/node_modules/pc-bootstrap4-datetimepicker/build/css/'));
+
+//datatables route
+app.use('/datatables/js', express.static(__dirname + '/node_modules/datatables/media/js/'));
+app.use('/datatables/css', express.static(__dirname + '/node_modules/datatables/media/css/'));
+app.use('/datatables/images', express.static(__dirname + '/node_modules/datatables/media/images/'));
 
 //moment.js route
-app.use('/moment/js', express.static(__dirname + '/node_modules/moment/min'));
+app.use('/moment/js', express.static(__dirname + '/node_modules/moment/min/'));
 
 //fontawesome route
-app.use('/fontawesome/css', express.static(__dirname + '/node_modules/@fortawesome/fontawesome-free/css'));
-app.use('/fontawesome/webfonts', express.static(__dirname + '/node_modules/@fortawesome/fontawesome-free/webfonts'));
+app.use('/fontawesome/css', express.static(__dirname + '/node_modules/@fortawesome/fontawesome-free/css/'));
+app.use('/fontawesome/webfonts', express.static(__dirname + '/node_modules/@fortawesome/fontawesome-free/webfonts/'));
 
 //bootstrap route
-app.use('/bootstrap/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
-app.use('/bootstrap/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
+app.use('/bootstrap/js', express.static(__dirname + '/node_modules/bootstrap/dist/js/'));
+app.use('/bootstrap/css', express.static(__dirname + '/node_modules/bootstrap/dist/css/'));
 
 //chart.js route
 app.use('/chart/js', express.static(__dirname + '/node_modules/chart.js/dist/'));
 
 //popper.js route
-app.use('/popper/js', express.static(__dirname + '/node_modules/popper.js/dist/umd'));
+app.use('/popper/js', express.static(__dirname + '/node_modules/popper.js/dist/umd/'));
+
+//jquery.typeahead route
+app.use('/typeahead/js', express.static(__dirname + '/node_modules/jquery-typeahead/dist/'));
+app.use('/typeahead/css', express.static(__dirname + '/node_modules/jquery-typeahead/dist/'));
+
+//jquery-mask-plugin
+app.use('/jquery-mask-plugin/js', express.static(__dirname + '/node_modules/jquery-mask-plugin/dist/'));
+
+//noty
+app.use('/noty/js', express.static(__dirname + '/node_modules/noty/lib/'));
+app.use('/noty/css', express.static(__dirname + '/node_modules/noty/lib/'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 

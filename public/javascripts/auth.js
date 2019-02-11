@@ -5,7 +5,10 @@ vetApplication.controller('authController', function($scope, $http) {
         $http.post('auth', $scope.authForm)
             .success(function (data) {
                 if (!data.success) {
-                    noty({text: data.err})
+                    new Noty({
+                        text: data.err,
+                        type: 'error'
+                    }).show();
                 } else {
                     __global.originalUrl? window.location = __global.originalUrl : window.location = '/';
                 }
@@ -31,9 +34,9 @@ __global.getOriginalUrl = function (val) {
 /*  init block  */
 $(document).ready(function() {
     /*  noty init  */
-    $.noty.defaults = {
+    Noty.overrideDefaults({
         layout: 'bottomRight',
-        theme: 'relax', // or 'relax'
+        theme: 'relax',
         type: 'error',
         text: '',
         dismissQueue: true,
@@ -44,21 +47,21 @@ $(document).ready(function() {
             easing: 'swing',
             speed: 300
         },
-        timeout: 5000,
+        timeout: 4000,
         force: false,
         modal: false,
         maxVisible: 5,
         killer: false,
         closeWith: ['click'],
         callback: {
-            onShow: function () {},
-            afterShow: function () {},
-            onClose: function () {},
-            afterClose: function () {},
-            onCloseClick: function () {}
+            onShow: function() {},
+            afterShow: function() {},
+            onClose: function() {},
+            afterClose: function() {},
+            onCloseClick: function() {}
         },
         buttons: false
-    };
+    });
     /*  !noty init  */
 
     __global.originalUrl = __global.getOriginalUrl('originalUrl');

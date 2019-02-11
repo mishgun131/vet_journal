@@ -178,13 +178,15 @@ vetApplication.controller('cl-controller', function($scope, $http, Client, Pets)
                                     break;
                             }
 
-                            noty({
-                                type: 'success',
+                            new Noty({
                                 text: 'Изменения сохранены.',
-                                timeout: 3000
-                            });
+                                type: 'success'
+                            }).show();
                         } else {
-                            noty({text: data.err});
+                            new Noty({
+                                text: data.err,
+                                type: 'error'
+                            }).show();
                         }
                     });
             } else if (array[0] !== 'pet' && value !== $scope.client[name]) {
@@ -193,13 +195,15 @@ vetApplication.controller('cl-controller', function($scope, $http, Client, Pets)
                         if (data.success) {
                             $scope.client[name] = value;
 
-                            noty({
-                                type: 'success',
+                            new Noty({
                                 text: 'Изменения сохранены.',
-                                timeout: 3000
-                            });
+                                type: 'success'
+                            }).show();
                         } else {
-                            noty({text: data.err});
+                            new Noty({
+                                text: data.err,
+                                type: 'error'
+                            }).show();
                         }
                     });
             }
@@ -311,7 +315,10 @@ vetApplication.controller('cl-controller', function($scope, $http, Client, Pets)
 
                         collapse.collapse('toggle');
                     } else {
-                        noty({text: data.err});
+                        new Noty({
+                            text: data.err,
+                            type: 'error'
+                        }).show();
                     }
                 });
         } else {
@@ -359,11 +366,10 @@ vetApplication.controller('modal-add-pet', function($scope, $http, Client, Pets)
 
                     Pets.addPet(data.pet);
 
-                    noty({
-                        type: 'success',
+                    new Noty({
                         text: 'Питомец добавлен.',
-                        timeout: 1000
-                    });
+                        type: 'success'
+                    }).show();
 
                     setTimeout(function() {
                         let tabs = document.querySelectorAll('#tabs li.pets-tabs a'),
@@ -375,7 +381,10 @@ vetApplication.controller('modal-add-pet', function($scope, $http, Client, Pets)
                         $(modal).modal('hide');
                     }, 50);
                 } else {
-                    noty({text: 'Ошибка: ' + data.err});
+                    new Noty({
+                        text: data.err,
+                        type: 'error'
+                    }).show();
                 }
             });
     };
@@ -461,13 +470,15 @@ vetApplication.controller('modal-add-pet-event', function($scope, $http, Client,
                     $scope.addPetEventData = {};
                     $scope.addPetEventData.type_id = '1';
 
-                    noty({
-                        type: 'success',
+                    new Noty({
                         text: 'Питомец добавлен.',
-                        timeout: 1000
-                    });
+                        type: 'success'
+                    }).show();
                 } else {
-                    noty({text: 'Ошибка: ' + data.err});
+                    new Noty({
+                        text: data.err,
+                        type: 'error'
+                    }).show();
                 }
             });
     };

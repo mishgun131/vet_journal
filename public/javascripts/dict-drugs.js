@@ -20,14 +20,17 @@ vetApplication.controller('modal-add-drug', function($scope, $http) {
                     $scope.addDrug.$setUntouched();
                     $scope.addDrugData = {};
 
-                    noty({
-                        type: 'success',
-                        text: 'Препарат добавлен.'
-                    });
+                    new Noty({
+                        text: 'Препарат добавлен.',
+                        type: 'success'
+                    }).show();
 
                     $(modal).modal('hide');
                 } else {
-                    noty({text: 'Ошибка: ' + data.err});
+                    new Noty({
+                        text: data.err,
+                        type: 'error'
+                    }).show();
                 }
             });
     };
