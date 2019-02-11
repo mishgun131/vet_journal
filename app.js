@@ -1,31 +1,16 @@
 'use strict';
 
-const express = require('express');
-const path = require('path');
-const favicon = require('serve-favicon');
-const logger = require('morgan');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const session = require('express-session');
-const pgSession = require('connect-pg-simple')(session);
-const pg = require('pg');
-const conf = new require('./settings')();
-
-const pool = new pg.Pool({
-    user: conf.postgres.user,
-    host: conf.postgres.host,
-    database: conf.postgres.database,
-    password: conf.postgres.password,
-    port: conf.postgres.port
-});
-
-const routes = require('./routes/index');
-const users = require('./routes/users');
-const auth = require('./routes/auth');
-const clients = require('./routes/clients');
-const dicts = require('./routes/dicts');
-
-const app = express();
+const express = require('express'),
+    path = require('path'),
+    favicon = require('serve-favicon'),
+    logger = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    session = require('express-session'),
+    pgSession = require('connect-pg-simple')(session),
+    pg = require('pg'),
+    conf = new require('./settings')(),
+    app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -35,6 +20,16 @@ app.use(favicon(path.join(__dirname, 'public/images', 'favicon.ico')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
+
+/* -- Sessions -- */
+const pool = new pg.Pool({
+    user: conf.postgres.user,
+    host: conf.postgres.host,
+    database: conf.postgres.database,
+    password: conf.postgres.password,
+    port: conf.postgres.port
+});
+
 app.use(session({
     store: new pgSession({
         pool : pool
@@ -91,10 +86,20 @@ app.use('/noty/css', express.static(__dirname + '/node_modules/noty/lib/'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+/* -- ROUTES -- */
+const index = require('./routes/index');
+app.use('/', index);
+
+const users = require('./routes/users');
 app.use('/users', users);
+
+const auth = require('./routes/auth');
 app.use('/auth', auth);
+
+const clients = require('./routes/clients');
 app.use('/clients', clients);
+
+const dicts = require('./routes/dicts');
 app.use('/dicts', dicts);
 
 //api
@@ -107,17 +112,14 @@ app.use(logger('dev'));
 const cache = require('./libs/cache');
 cache.updateCache();
 
-// catch 404 and forward to error handler
+// ToDo сделать нормальную 404
 app.use(function (req, res, next) {
     let err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
 
-// error handlers
-
-// development error handler
-// will print stacktrace
+// ToDo сделать нормальную 500
 if (app.get('env') === 'development') {
     app.use(function (err, req, res) {
         res.status(err.status || 500);

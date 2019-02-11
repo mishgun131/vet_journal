@@ -1,3 +1,5 @@
+'use strict';
+
 let conf = new require('../settings')();
 
 //Набор всяких утилит

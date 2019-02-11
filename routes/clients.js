@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express'),
     router = express.Router(),
     db = require('../db/db'),

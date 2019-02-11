@@ -63,7 +63,7 @@ html(ng-app = 'vet_clinic_app')
                             if client_info
                                 li(class = 'nav-item')
                                     h6(class = 'd-flex justify-content-between align-items-center px-3 mt-1 mb-1')
-                                        a(id = 'client', href = '/clients/client_#{client_info.id}')
+                                        a(id = 'client', href = '/clients/client_' + client_info.id)
                                             i(class = 'fas fa-user')
                                             | #{client_info.fio}
                         h6(class = 'sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted')

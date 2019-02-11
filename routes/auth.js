@@ -1,15 +1,16 @@
-var express = require('express');
-var router = express.Router();
-var db = require('../db/db');
+'use strict';
 
-/* GET home page. */
+const express = require('express'),
+    router = express.Router(),
+    db = require('../db/db');
+
 router.get('/', function(req, res, next) {
     res.render('auth');
 });
 
 router.post('/', function(req, res, next) {
     if (req.body && req.body.login && req.body.password) {
-        var login = req.body.login,
+        let login = req.body.login,
             password = req.body.password;
 
         db.login(login, password, function(err, result) {

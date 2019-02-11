@@ -1,4 +1,4 @@
-var vetApplication = angular.module('vet_clinic_app', []), __global = {};
+const vetApplication = angular.module('vet_clinic_app', []), __global = {};
 
 vetApplication.controller('authController', function($scope, $http) {
     $scope.submit = function() {
@@ -17,7 +17,7 @@ vetApplication.controller('authController', function($scope, $http) {
 });
 
 __global.getOriginalUrl = function (val) {
-    var result = null,
+    let result = null,
         tmp = [];
 
     location.search

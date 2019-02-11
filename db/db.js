@@ -1,10 +1,10 @@
 'use strict';
 
-const { Client } = require('pg'),
+const pg = require('pg'),
     conf = new require('../settings')(),
     _ = require('../libs/_utils');
 
-const client = new Client({
+const pool = new pg.Pool({
     user: conf.postgres.user,
     host: conf.postgres.host,
     database: conf.postgres.database,
@@ -12,7 +12,7 @@ const client = new Client({
     port: conf.postgres.port
 });
 
-client.connect();
+pool.connect();
 
 const db = function (connectParams) {
     let _connectParams;
@@ -34,11 +34,11 @@ db.prototype.login = function (login, password, cb) {
         && password && password.length) {
 
         sql = 'select result_id, user_id from control.login($1,' + //login text not null
-        '$2);'; //password text not null
+            '$2);'; //password text not null
 
         params = [login, password];
 
-        client.query(sql, params, function(err, result) {
+        pool.query(sql, params, function(err, result) {
             if (err) {
                 _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
                 cb(_.stdFrontErrMessage, false);
@@ -74,7 +74,7 @@ db.prototype.checkUser = function(req, res, next) {
 
         params = [req.session.user];
 
-        client.query(sql, params, function(err, result) {
+        pool.query(sql, params, function(err, result) {
             if (err) {
                 _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
                 res.redirect('/auth');
@@ -121,12 +121,12 @@ db.prototype.addClient = function(client, cb) {
     }
 
     sql = 'select control.cl_add_client($1,' + //firstName text not null
-    '$2,' + //lastName text not null
-    '$3,' + //middleName text null
-    '$4,' + //address text null
-    '$5,' + //phone text not null
-    '$6,' + //cl_comment text null
-    '$7) as cl_id;'; //pets array[jsonb] not null
+        '$2,' + //lastName text not null
+        '$3,' + //middleName text null
+        '$4,' + //address text null
+        '$5,' + //phone text not null
+        '$6,' + //cl_comment text null
+        '$7) as cl_id;'; //pets array[jsonb] not null
 
     params = [];
 
@@ -138,7 +138,7 @@ db.prototype.addClient = function(client, cb) {
     params.push((client.cl_comment && client.cl_comment.length)? client.cl_comment : null); //$6
     params.push(client.pets); //$7
 
-    client.query(sql, params, function(err, result) {
+    pool.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
@@ -154,12 +154,12 @@ db.prototype.editClient = function(client_id, field, value, cb) {
         _module = 'db.editClient';
 
     sql = 'select control.cl_edit_field_value($1,' + //client_id integer not null
-    '$2,' + //field text not null
-    '$3);'; //value text not null
+        '$2,' + //field text not null
+        '$3);'; //value text not null
 
     params = [client_id, field, value];
 
-    client.query(sql, params, function(err) {
+    pool.query(sql, params, function(err) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
@@ -175,7 +175,7 @@ db.prototype.getClientList = function(cb) {
 
     sql = 'select * from control.cl_get_clients_list();';
 
-    client.query(sql, function(err, result) {
+    pool.query(sql, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: sql});
             cb(_.stdFrontErrMessage);
@@ -193,7 +193,7 @@ db.prototype.getClient = function(id, cb) {
 
     params = [id];
 
-    client.query(sql, params, function(err, result) {
+    pool.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
@@ -214,13 +214,13 @@ db.prototype.addPet = function(pet, cb) {
     }
 
     sql = 'select control.pt_add_pet($1,' + //cl_id$i integer not null
-    '$2,' + //nickname$t text not null
-    '$3,' + //sex_id$i integer not null
-    '$4,' + //type$t text not null
-    '$5,' + //breed$t text null
-    '$6,' + //weight$n numeric null
-    '$7,' + //birthday$t text not null
-    '$8) as pt_id;'; //birthday_is_exact$b boolean not null
+        '$2,' + //nickname$t text not null
+        '$3,' + //sex_id$i integer not null
+        '$4,' + //type$t text not null
+        '$5,' + //breed$t text null
+        '$6,' + //weight$n numeric null
+        '$7,' + //birthday$t text not null
+        '$8) as pt_id;'; //birthday_is_exact$b boolean not null
 
     params = [];
 
@@ -233,7 +233,7 @@ db.prototype.addPet = function(pet, cb) {
     params.push(pet.birthday); //$7
     params.push(pet.birthday_is_exact); //$8
 
-    client.query(sql, params, function(err, result) {
+    pool.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', err, _.getSql(sql, params));
             cb(_.stdFrontErrMessage);
@@ -242,7 +242,7 @@ db.prototype.addPet = function(pet, cb) {
 
             params = [null, result.rows[0].pt_id];
 
-            client.query(sql, params, function(err, result) {
+            pool.query(sql, params, function(err, result) {
                 if (err) {
                     _.log('error', _module, 'Ошибка запроса', err, _.getSql(sql, params));
                     cb(_.stdFrontErrMessage);
@@ -268,7 +268,7 @@ db.prototype.getPetsList = function(client_id, pet_id, cb) {
 
     params = [client_id, pet_id];
 
-    client.query(sql, params, function(err, result) {
+    pool.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
@@ -283,12 +283,12 @@ db.prototype.editPet = function(pet_id, field, value, cb) {
         _module = 'db.editPet';
 
     sql = 'select control.pt_edit_field_value($1,' + //pet_id integer not null
-    '$2,' + //field text not null
-    '$3);'; //value text not null
+        '$2,' + //field text not null
+        '$3);'; //value text not null
 
     params = [pet_id, field, value];
 
-    client.query(sql, params, function(err, result) {
+    pool.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
@@ -312,7 +312,7 @@ db.prototype.getPetWeightHistory = function(pet_id, cb) {
 
     params = [pet_id];
 
-    client.query(sql, params, function(err, result) {
+    pool.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
@@ -337,7 +337,7 @@ db.prototype.liveSearchClient = function(query_string, cb) {
         }
     }
 
-    client.query(sql, params, function(err, result) {
+    pool.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
@@ -352,7 +352,7 @@ db.prototype.getPetTypes = function(cb) {
 
     let sql = 'select * from control.pt_get_pet_types();'; //query$t text not null
 
-    client.query(sql, function(err, result) {
+    pool.query(sql, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: sql});
             cb(_.stdFrontErrMessage);
@@ -368,7 +368,7 @@ db.prototype.getPetBreedsByTypeId = function(type_id, cb) {
     let params = [type_id]
         ,sql = 'select * from control.pt_get_pet_breeds_by_type_id($1);';
 
-    client.query(sql, params, function(err, result) {
+    pool.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);
@@ -384,7 +384,7 @@ db.prototype.getEventTypes = function(cb) {
 
     let sql = 'select * from control.ev_get_types();';
 
-    client.query(sql, function(err, result) {
+    pool.query(sql, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', err, sql);
             cb(_.stdFrontErrMessage);
@@ -415,7 +415,7 @@ db.prototype.addDrug = function(drug, cb) {
     params.push(drug.release_form? drug.release_form : null); //$2
     params.push(drug.price? drug.price : null); //$3
 
-    client.query(sql, params, function(err) {
+    pool.query(sql, params, function(err) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', err, _.getSql(sql, params));
             cb(_.stdFrontErrMessage);
@@ -432,7 +432,7 @@ db.prototype.getDrugList = function(cb) {
 
     sql = 'select * from control.dict_get_drugs_list();'; //price$n numeric null
 
-    client.query(sql, function(err, result) {
+    pool.query(sql, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', err, sql);
             cb(_.stdFrontErrMessage);
@@ -446,7 +446,7 @@ db.prototype.getDrugList = function(cb) {
 db.prototype.execQuery = function(sql, params, cb) {
     let _module = 'db.execQuery';
 
-    client.query(sql, params, function(err, result) {
+    pool.query(sql, params, function(err, result) {
         if (err) {
             _.log('error', _module, 'Ошибка запроса', {err: err, sql: _.getSql(sql, params)});
             cb(_.stdFrontErrMessage);

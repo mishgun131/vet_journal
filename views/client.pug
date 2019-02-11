@@ -245,7 +245,7 @@ block modals
                                             | Вес*
                                         input(type='number', step='0.001', class='col-md-3 form-control form-control-sm', id='new-cl-pet-weight', ng-model='addPetData.weight', placeholder='кг', required)
                                     if client_info
-                                        input(type = 'text', id = 'client-id', class = 'hidden', value = '#{client_info.id}', required)
+                                        input(type = 'text', id = 'client-id', class = 'hidden', value = client_info.id, required)
                     div(class = 'modal-footer')
                         button(type = 'button', class = 'btn btn-secondary', data-dismiss = 'modal')
                             | Закрыть
