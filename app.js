@@ -138,8 +138,4 @@ app.use(function (err, req, res) {
     });
 });
 
-//Сгенерировать кучу клиентов с тарабарскими именами
-//let generate_cl = require('./libs/generate_cl');
-//generate_cl.gen();
-
 module.exports = app;

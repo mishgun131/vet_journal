@@ -10,7 +10,7 @@ mixin buttons-block(cl)
 block content
     - var clients_in = JSON.stringify(client_info)
     - var pets_in = JSON.stringify(pets)
-    div(ng-controller = 'cl-controller', ng-init = 'init(#{clients_in}, #{pets_in})')
+    div(ng-controller = 'cl-controller', ng-init = 'init(' + clients_in + ', ' + pets_in + ')')
         if client_info
             div(class = 'well')
                 div(class = 'row', style = 'margin-left: 0')
