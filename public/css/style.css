@@ -169,15 +169,19 @@ body {
 }
 
 .cl-edit-accept-changes {
-  color: green;
+  color: green !important;
 }
 
 .cl-edit-decline-changes {
-  color: red;
+  color: red !important;
 }
 
 .pets-list-repeat {
   margin-top: 10px;
+}
+
+.pets-list-repeat .typeahead__result {
+  margin-top: 30px;
 }
 
 .hidden {

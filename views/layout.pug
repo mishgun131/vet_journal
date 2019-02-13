@@ -6,32 +6,32 @@ html(ng-app = 'vet_clinic_app')
         meta(name = 'viewport', content = 'width=device-width, initial-scale=1')
         link(rel = 'icon', href = '/images/favicon.ico')
         //-jquery libs
-        script(src = '/jquery/js/jquery.min.js')
+        script(src = '/libs/jquery/js/jquery.min.js')
         //-angular libs
-        script(src = '/angular/js/angular.min.js')
-        script(src = '/popper/js/popper.min.js')
+        script(src = '/libs/angular/js/angular.min.js')
+        script(src = '/libs/popper/js/popper.min.js')
         //-bootstrap lib
-        link(href = '/bootstrap/css/bootstrap.min.css', rel = 'stylesheet')
-        script(src = '/bootstrap/js/bootstrap.min.js')
+        link(href = '/libs/bootstrap/css/bootstrap.min.css', rel = 'stylesheet')
+        script(src = '/libs/bootstrap/js/bootstrap.min.js')
         //-moment.js
-        script(src = '/moment/js/moment-with-locales.min.js')
+        script(src = '/libs/moment/js/moment-with-locales.min.js')
         //-live search lib
-        link(href = '/typeahead/css/jquery.typeahead.min.css', rel = 'stylesheet')
-        script(src = '/typeahead/js/jquery.typeahead.min.js')
+        link(href = '/libs/typeahead/css/jquery.typeahead.min.css', rel = 'stylesheet')
+        script(src = '/libs/typeahead/js/jquery.typeahead.min.js')
         //-datepicker lib
-        link(href = '/datetimepicker/css/bootstrap-datetimepicker.css', rel = 'stylesheet')
-        script(src = '/datetimepicker/js/bootstrap-datetimepicker.min.js')
+        link(href = '/libs/datetimepicker/css/bootstrap-datetimepicker.css', rel = 'stylesheet')
+        script(src = '/libs/datetimepicker/js/bootstrap-datetimepicker.min.js')
         //-chart.js
-        script(src = '/chart/js/chart.min.js')
+        script(src = '/libs/chart/js/chart.min.js')
         //-other libs
-        link(href = '/fontawesome/css/all.min.css', rel = 'stylesheet')
-        link(href = '/stylesheets/animate.css', rel = 'stylesheet')
-        link(href = '/noty/css/noty.css', rel = 'stylesheet')
-        script(src = '/noty/js/noty.min.js')
-        script(src = '/jquery-mask-plugin/js/jquery.mask.min.js')
+        link(href = '/libs/fontawesome/css/all.min.css', rel = 'stylesheet')
+        link(href = '/css/animate.css', rel = 'stylesheet')
+        link(href = '/libs/noty/css/noty.css', rel = 'stylesheet')
+        script(src = '/libs/noty/js/noty.min.js')
+        script(src = '/libs/jquery-mask-plugin/js/jquery.mask.min.js')
         //-my libs
-        script(src = '/javascripts/layout.js')
-        link(href = '/stylesheets/style.css', rel = 'stylesheet')
+        script(src = '/js/layout.js')
+        link(href = '/css/style.css', rel = 'stylesheet')
         if client_info
             title
                 | #{client_info.fio} | Ветеринарный журнал
